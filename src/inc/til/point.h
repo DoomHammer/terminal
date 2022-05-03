@@ -193,6 +193,18 @@ namespace til // Terminal Implementation Library. Also: "Today I Learned"
         {
             return { x, y };
         }
+
+        // til::point and POINT have the exact same layout at the time of writing,
+        // so this function lets you unsafely "view" this point as a POINT
+        // if you need to pass it to a Win32 function.
+        //
+        // Use as_win32_point() as sparingly as possible because it'll be a pain to hack
+        // it out of this code base once til::point and POINT aren't the same anymore.
+        // Prefer casting to POINT and back to til::point instead if possible.
+        POINT* as_win32_point() noexcept
+        {
+            return std::launder(reinterpret_cast<POINT*>(this));
+        }
 #endif
 
 #ifdef DCOMMON_H_INCLUDED

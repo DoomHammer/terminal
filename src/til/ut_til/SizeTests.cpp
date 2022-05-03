@@ -9,6 +9,13 @@ using namespace WEX::Common;
 using namespace WEX::Logging;
 using namespace WEX::TestExecution;
 
+// Ensure the "safety" of til::point::as_win32_size
+static_assert(
+    sizeof(til::size) == sizeof(SIZE) &&
+    alignof(til::size) == alignof(SIZE) &&
+    offsetof(til::size, width) == offsetof(SIZE, cx) &&
+    offsetof(til::size, height) == offsetof(SIZE, cy));
+
 class SizeTests
 {
     TEST_CLASS(SizeTests);
@@ -371,24 +378,24 @@ class SizeTests
             const til::size sz{ -10, -5 };
             const til::size divisor{ 3, 2 };
 
-            // -10 / 3 is -3.333, rounded up is -4.
-            // -5 / 2 is -2.5, rounded up is -3.
-            const til::size expected{ -4, -3 };
+            auto fn = [&]() {
+                sz.divide_ceil(divisor);
+            };
 
-            VERIFY_ARE_EQUAL(expected, sz.divide_ceil(divisor));
+            VERIFY_THROWS(fn(), std::invalid_argument);
         }
     }
 
     TEST_METHOD(WidthCast)
     {
         const til::size sz{ 5, 10 };
-        VERIFY_ARE_EQUAL(static_cast<SHORT>(sz.width), sz.narrow_width<SHORT>());
+        VERIFY_ARE_EQUAL(static_cast<til::CoordType>(sz.width), sz.narrow_width<til::CoordType>());
     }
 
     TEST_METHOD(HeightCast)
     {
         const til::size sz{ 5, 10 };
-        VERIFY_ARE_EQUAL(static_cast<SHORT>(sz.height), sz.narrow_height<SHORT>());
+        VERIFY_ARE_EQUAL(static_cast<til::CoordType>(sz.height), sz.narrow_height<til::CoordType>());
     }
 
     TEST_METHOD(Area)
@@ -416,16 +423,16 @@ class SizeTests
         Log::Comment(L"0.) Area of two things that should be in bounds.");
         {
             const til::size sz{ 5, 10 };
-            VERIFY_ARE_EQUAL(static_cast<SHORT>(sz.area()), sz.area<SHORT>());
+            VERIFY_ARE_EQUAL(static_cast<til::CoordType>(sz.area()), sz.area<til::CoordType>());
         }
 
         Log::Comment(L"1.) Area is out of bounds on multiplication.");
         {
-            constexpr til::CoordType bigSize = std::numeric_limits<SHORT>().max();
+            constexpr til::CoordType bigSize = std::numeric_limits<til::CoordType>().max();
             const til::size sz{ bigSize, bigSize };
 
             auto fn = [&]() {
-                sz.area<SHORT>();
+                sz.area<til::CoordType>();
             };
 
             VERIFY_THROWS(fn(), gsl::narrowing_error);

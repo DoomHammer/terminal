@@ -45,7 +45,7 @@ void Terminal::SetCursorPosition(til::point pos)
 {
     const auto viewport = _GetMutableViewport();
     const til::point viewOrigin{ viewport.Origin() };
-    auto newPos = til::unwrap_coord(viewOrigin + pos);
+    auto newPos = viewOrigin + pos;
     viewport.Clamp(newPos);
     _activeBuffer().GetCursor().SetPosition(newPos);
 }
@@ -101,7 +101,7 @@ void Terminal::DeleteCharacter(const til::CoordType count)
     const auto sourceWidth = viewport.RightExclusive() - copyFromPos.X;
 
     // Get a rectangle of the source
-    auto source = Viewport::FromDimensions(til::unwrap_coord(copyFromPos), gsl::narrow<short>(sourceWidth), 1);
+    auto source = Viewport::FromDimensions(copyFromPos, sourceWidth, 1);
 
     // Get a rectangle of the target
     const auto target = Viewport::FromDimensions(copyToPos, source.Dimensions());
@@ -140,10 +140,10 @@ void Terminal::InsertCharacter(const til::CoordType count)
     const auto sourceWidth = viewport.RightExclusive() - copyFromPos.X;
 
     // Get a rectangle of the source
-    auto source = Viewport::FromDimensions(copyFromPos, gsl::narrow<short>(sourceWidth), 1);
+    auto source = Viewport::FromDimensions(copyFromPos, sourceWidth, 1);
 
     // Get a rectangle of the target
-    const auto target = Viewport::FromDimensions(til::unwrap_coord(copyToPos), source.Dimensions());
+    const auto target = Viewport::FromDimensions(copyToPos, source.Dimensions());
     const auto walkDirection = Viewport::DetermineWalkDirection(source, target);
 
     auto sourcePos = source.GetWalkOrigin(walkDirection);
@@ -209,7 +209,7 @@ bool Terminal::EraseInLine(const ::Microsoft::Console::VirtualTerminal::Dispatch
     const auto eraseIter = OutputCellIterator(UNICODE_SPACE, _activeBuffer().GetCurrentAttributes(), nlength);
 
     // Explicitly turn off end-of-line wrap-flag-setting when erasing cells.
-    _activeBuffer().Write(eraseIter, til::unwrap_coord(startPos), false);
+    _activeBuffer().Write(eraseIter, startPos, false);
     return true;
 }
 
@@ -233,7 +233,7 @@ bool Terminal::EraseInDisplay(const DispatchTypes::EraseType eraseType)
 
     // Initialize the new location of the viewport
     // the top and bottom parameters are determined by the eraseType
-    SMALL_RECT newWin;
+    til::rect newWin;
     newWin.Left = viewport.Left();
     newWin.Right = viewport.RightExclusive();
 
@@ -257,7 +257,7 @@ bool Terminal::EraseInDisplay(const DispatchTypes::EraseType eraseType)
             return true;
         }
 
-        short sNewTop = coordLastChar.Y + 1;
+        auto sNewTop = coordLastChar.Y + 1;
 
         // Increment the circular buffer only if the new location of the viewport would be 'below' the buffer
         const auto delta = (sNewTop + viewport.Height()) - (_activeBuffer().GetSize().Height());
@@ -274,7 +274,7 @@ bool Terminal::EraseInDisplay(const DispatchTypes::EraseType eraseType)
     {
         // We only want to erase the scrollback, and leave everything else on the screen as it is
         // so we grab the text in the viewport and rotate it up to the top of the buffer
-        COORD scrollFromPos{ 0, 0 };
+        til::point scrollFromPos{ 0, 0 };
         viewport.ConvertFromOrigin(&scrollFromPos);
         _activeBuffer().ScrollRows(scrollFromPos.Y, viewport.Height(), -scrollFromPos.Y);
 
@@ -301,7 +301,7 @@ bool Terminal::EraseInDisplay(const DispatchTypes::EraseType eraseType)
     // Move the viewport, adjust the scroll bar if needed, and restore the old cursor position
     _mutableViewport = Viewport::FromExclusive(newWin);
     Terminal::_NotifyScrollEvent();
-    SetCursorPosition(til::point{ relativeCursor });
+    SetCursorPosition(relativeCursor);
 
     return true;
 }
@@ -583,7 +583,7 @@ void Terminal::PopGraphicsRendition()
 void Terminal::UseAlternateScreenBuffer()
 {
     // the new alt buffer is exactly the size of the viewport.
-    _altBufferSize = til::size{ _mutableViewport.Dimensions() };
+    _altBufferSize = _mutableViewport.Dimensions();
 
     const auto cursorSize = _mainBuffer->GetCursor().GetSize();
 
@@ -591,7 +591,7 @@ void Terminal::UseAlternateScreenBuffer()
     _mainBuffer->ClearPatternRecognizers();
 
     // Create a new alt buffer
-    _altBuffer = std::make_unique<TextBuffer>(_altBufferSize.to_win32_coord(),
+    _altBuffer = std::make_unique<TextBuffer>(_altBufferSize,
                                               TextAttribute{},
                                               cursorSize,
                                               true,
@@ -662,7 +662,7 @@ void Terminal::UseMainScreenBuffer()
 
     if (_deferredResize.has_value())
     {
-        LOG_IF_FAILED(UserResize(_deferredResize.value().to_win32_coord()));
+        LOG_IF_FAILED(UserResize(_deferredResize.value()));
         _deferredResize = std::nullopt;
     }
 

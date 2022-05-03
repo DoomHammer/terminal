@@ -374,7 +374,7 @@ namespace TerminalAppUnitTests
         TryBasicType(testGuid, testGuidString);
 
         VERIFY_THROWS_SPECIFIC(GetValue<GUID>({ "NOT_A_GUID" }), DeserializationError, _ReturnTrueForException);
-        VERIFY_THROWS_SPECIFIC(GetValue<GUID>({ "{too short for a guid but just a bit}" }), DeserializationError, _ReturnTrueForException);
+        VERIFY_THROWS_SPECIFIC(GetValue<GUID>({ "{too til::CoordType for a guid but just a bit}" }), DeserializationError, _ReturnTrueForException);
         VERIFY_THROWS_SPECIFIC(GetValue<GUID>({ "{proper length string not a guid tho?}" }), std::exception, _ReturnTrueForException);
 
         VERIFY_THROWS_SPECIFIC(GetValue<til::color>({ "#" }), DeserializationError, _ReturnTrueForException);

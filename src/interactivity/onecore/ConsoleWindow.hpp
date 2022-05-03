@@ -29,7 +29,7 @@ namespace Microsoft::Console::Interactivity::OneCore
 
         bool IsInFullscreen() const;
         void SetIsFullscreen(const bool fFullscreenEnabled);
-        void ChangeViewport(const SMALL_RECT NewWindow);
+        void ChangeViewport(const til::inclusive_rect& NewWindow);
 
         void CaptureMouse();
         BOOL ReleaseMouse();
@@ -38,10 +38,10 @@ namespace Microsoft::Console::Interactivity::OneCore
 
         void SetOwner();
 
-        BOOL GetCursorPosition(LPPOINT lpPoint);
-        BOOL GetClientRectangle(LPRECT lpRect);
-        int MapPoints(LPPOINT lpPoints, UINT cPoints);
-        BOOL ConvertScreenToClient(LPPOINT lpPoint);
+        BOOL GetCursorPosition(til::point* lpPoint);
+        BOOL GetClientRectangle(til::rect* lpRect);
+        int MapRect(_Inout_ til::rect* lpRect);
+        BOOL ConvertScreenToClient(til::point* lpPoint);
 
         BOOL SendNotifyBeep() const;
 
@@ -49,7 +49,7 @@ namespace Microsoft::Console::Interactivity::OneCore
         BOOL PostUpdateTitleWithCopy(const PCWSTR pwszNewTitle) const;
         BOOL PostUpdateWindowSize() const;
 
-        void UpdateWindowSize(const COORD coordSizeInChars);
+        void UpdateWindowSize(const til::size coordSizeInChars);
         void UpdateWindowText();
 
         void HorizontalScroll(const WORD wScrollCommand, const WORD wAbsoluteChange);
@@ -57,6 +57,6 @@ namespace Microsoft::Console::Interactivity::OneCore
 
         [[nodiscard]] HRESULT SignalUia(_In_ EVENTID id);
         [[nodiscard]] HRESULT UiaSetTextAreaFocus();
-        RECT GetWindowRect() const noexcept;
+        til::rect GetWindowRect() const noexcept;
     };
 }

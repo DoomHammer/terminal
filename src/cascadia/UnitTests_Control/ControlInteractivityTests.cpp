@@ -426,7 +426,7 @@ namespace ControlUnitTests
 
         Log::Comment(L"Drag the mouse just a little");
         // move not quite a whole cell, but enough to start a selection
-        const auto cursorPosition1{ cursorPosition0 + til::point{ 6, 0 } };
+        const auto cursorPosition1{ cursorPosition0 + { 6, 0 } };
         interactivity->PointerMoved(leftMouseDown,
                                     WM_LBUTTONDOWN, //pointerUpdateKind
                                     modifiers,
@@ -440,7 +440,7 @@ namespace ControlUnitTests
         Log::Comment(L"Verify the location of the selection");
         // The viewport is on row 21, so the selection will be on:
         // {(5, 5)+(0, 21)} to {(5, 5)+(0, 21)}
-        COORD expectedAnchor{ 5, 26 };
+        til::point expectedAnchor{ 5, 26 };
         VERIFY_ARE_EQUAL(expectedAnchor, core->_terminal->GetSelectionAnchor());
         VERIFY_ARE_EQUAL(expectedAnchor, core->_terminal->GetSelectionEnd());
 
@@ -453,7 +453,7 @@ namespace ControlUnitTests
         Log::Comment(L"Verify the location of the selection");
         // The viewport is now on row 20, so the selection will be on:
         // {(5, 5)+(0, 20)} to {(5, 5)+(0, 21)}
-        COORD newExpectedAnchor{ 5, 25 };
+        til::point newExpectedAnchor{ 5, 25 };
         // Remember, the anchor is always before the end in the buffer. So yes,
         // se started the selection on 5,26, but now that's the end.
         VERIFY_ARE_EQUAL(newExpectedAnchor, core->_terminal->GetSelectionAnchor());
@@ -586,7 +586,7 @@ namespace ControlUnitTests
         VERIFY_ARE_EQUAL(1u, core->_terminal->GetSelectionRects().size());
 
         Log::Comment(L"Verify that it started on the first cell we clicked on, not the one we dragged to");
-        COORD expectedAnchor{ 0, 0 };
+        til::point expectedAnchor{ 0, 0 };
         VERIFY_ARE_EQUAL(expectedAnchor, core->_terminal->GetSelectionAnchor());
     }
 
@@ -631,9 +631,9 @@ namespace ControlUnitTests
         VERIFY_ARE_EQUAL(1u, core->_terminal->GetSelectionRects().size());
 
         Log::Comment(L"Verify that it started on the first cell we clicked on, not the one we dragged to");
-        COORD expectedAnchor{ 0, 0 };
+        til::point expectedAnchor{ 0, 0 };
         VERIFY_ARE_EQUAL(expectedAnchor, core->_terminal->GetSelectionAnchor());
-        COORD expectedEnd{ 2, 0 };
+        til::point expectedEnd{ 2, 0 };
         VERIFY_ARE_EQUAL(expectedEnd, core->_terminal->GetSelectionEnd());
 
         interactivity->PointerReleased(noMouseDown,
@@ -787,7 +787,7 @@ namespace ControlUnitTests
 
         Log::Comment(L"Drag the mouse just a little");
         // move not quite a whole cell, but enough to start a selection
-        const auto cursorPosition1{ cursorPosition0 + til::point{ 6, 0 } };
+        const auto cursorPosition1{ cursorPosition0 + { 6, 0 } };
         interactivity->PointerMoved(leftMouseDown,
                                     WM_LBUTTONDOWN, //pointerUpdateKind
                                     modifiers,
@@ -801,7 +801,7 @@ namespace ControlUnitTests
         Log::Comment(L"Verify the location of the selection");
         // The viewport is on row (historySize + 5), so the selection will be on:
         // {(5, (historySize+5))+(0, 21)} to {(5, (historySize+5))+(0, 21)}
-        COORD expectedAnchor{ 5, gsl::narrow_cast<SHORT>(settings->HistorySize()) + 5 };
+        til::point expectedAnchor{ 5, settings->HistorySize() + 5 };
         VERIFY_ARE_EQUAL(expectedAnchor, core->_terminal->GetSelectionAnchor());
         VERIFY_ARE_EQUAL(expectedAnchor, core->_terminal->GetSelectionEnd());
 
@@ -953,7 +953,7 @@ namespace ControlUnitTests
                                       cursorPosition1.to_core_point());
 
         Log::Comment(L" --- Resize the terminal to be 10 columns wider ---");
-        const auto newSizeInDips{ til::size{ 40, 20 } * fontSize };
+        const auto newSizeInDips{ { 40, 20 } * fontSize };
         core->SizeChanged(newSizeInDips.width, newSizeInDips.height);
 
         Log::Comment(L" --- Click on a spot that's NOW INSIDE the buffer ---");

@@ -34,12 +34,12 @@ void ConsoleWindow::SetIsFullscreen(const bool /*fFullscreenEnabled*/)
 {
 }
 
-void ConsoleWindow::ChangeViewport(const SMALL_RECT NewWindow)
+void ConsoleWindow::ChangeViewport(const til::inclusive_rect& NewWindow)
 {
     CONSOLE_INFORMATION& gci = ServiceLocator::LocateGlobals().getConsoleInformation();
 
     SCREEN_INFORMATION& ScreenInfo = gci.GetActiveOutputBuffer();
-    const COORD FontSize = ScreenInfo.GetScreenFontSize();
+    const til::point FontSize = ScreenInfo.GetScreenFontSize();
 
     Selection* pSelection = &Selection::Instance();
     pSelection->HideSelection();
@@ -74,22 +74,22 @@ void ConsoleWindow::SetOwner()
 {
 }
 
-BOOL ConsoleWindow::GetCursorPosition(LPPOINT /*lpPoint*/)
+BOOL ConsoleWindow::GetCursorPosition(til::point& /*lpPoint*/)
 {
     return FALSE;
 }
 
-BOOL ConsoleWindow::GetClientRectangle(LPRECT /*lpRect*/)
+BOOL ConsoleWindow::GetClientRectangle(til::rect& /*lpRect*/)
 {
     return FALSE;
 }
 
-int ConsoleWindow::MapPoints(LPPOINT /*lpPoints*/, UINT /*cPoints*/)
+BOOL ConsoleWindow::MapRect(til::rect& /*lpRect*/)
 {
     return 0;
 }
 
-BOOL ConsoleWindow::ConvertScreenToClient(LPPOINT /*lpPoint*/)
+BOOL ConsoleWindow::ConvertScreenToClient(til::point& /*lpPoint*/)
 {
     return 0;
 }
@@ -109,7 +109,7 @@ BOOL ConsoleWindow::PostUpdateWindowSize() const
     return FALSE;
 }
 
-void ConsoleWindow::UpdateWindowSize(const COORD /*coordSizeInChars*/)
+void ConsoleWindow::UpdateWindowSize(const til::point /*coordSizeInChars*/)
 {
 }
 
@@ -135,8 +135,8 @@ void ConsoleWindow::VerticalScroll(const WORD /*wScrollCommand*/, const WORD /*w
     return E_NOTIMPL;
 }
 
-RECT ConsoleWindow::GetWindowRect() const noexcept
+til::rect ConsoleWindow::GetWindowRect() const noexcept
 {
-    RECT rc = { 0 };
+    til::rect rc;
     return rc;
 }

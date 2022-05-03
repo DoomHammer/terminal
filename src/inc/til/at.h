@@ -35,7 +35,7 @@ namespace til
     // This template is explicitly disabled if T is of type gsl::span, as it would interfere with
     // the overload below.
     template<class T, std::enable_if_t<!details::is_span<T>::value, int> = 0>
-    constexpr auto at(T& cont, const size_t i) -> decltype(cont[cont.size()])
+    constexpr auto at(T& cont, const auto i) -> decltype(cont[cont.size()])
     {
 #pragma warning(suppress : 26482) // Suppress bounds.2 check for indexing with constant expressions
 #pragma warning(suppress : 26446) // Suppress bounds.4 check for subscript operator.
@@ -46,7 +46,7 @@ namespace til
 #ifdef GSL_SPAN_H
     // This is an overload of til::at for span that access its backing buffer directly (UNCHECKED)
     template<typename ElementType, size_t Extent>
-    constexpr auto at(gsl::span<ElementType, Extent> span, const std::ptrdiff_t i) -> decltype(span[span.size()])
+    constexpr auto at(gsl::span<ElementType, Extent> span, const auto i) -> decltype(span[span.size()])
     {
 #pragma warning(suppress : 26481) // Suppress bounds.1 check for doing pointer arithmetic
 #pragma warning(suppress : 26482) // Suppress bounds.2 check for indexing with constant expressions

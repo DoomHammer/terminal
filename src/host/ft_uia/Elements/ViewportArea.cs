@@ -95,8 +95,8 @@ namespace Conhost.UIA.Tests.Elements
             Verify.IsTrue(User32.AdjustWindowRectEx(ref lpRect, style, false, exStyle));
 
             this.clientTopLeft = new Point();
-            this.clientTopLeft.X = Math.Abs(lpRect.left);
-            this.clientTopLeft.Y = Math.Abs(lpRect.top);
+            this.clientTopLeft.X = Math.Abs(lpRect->left);
+            this.clientTopLeft.Y = Math.Abs(lpRect->top);
             AutoHelpers.LogInvariant("Top left corner of client area is at X:{0} Y:{1}", this.clientTopLeft.X, this.clientTopLeft.Y);
         }
 

@@ -161,27 +161,27 @@ bool WddmConEngine::IsInitialized()
     return WDDMConEnableDisplayAccess((PHANDLE)_hWddmConCtx, FALSE);
 }
 
-[[nodiscard]] HRESULT WddmConEngine::Invalidate(const SMALL_RECT* const /*psrRegion*/) noexcept
+[[nodiscard]] HRESULT WddmConEngine::Invalidate(const til::rect* const /*psrRegion*/) noexcept
 {
     return S_OK;
 }
 
-[[nodiscard]] HRESULT WddmConEngine::InvalidateCursor(const SMALL_RECT* const /*psrRegion*/) noexcept
+[[nodiscard]] HRESULT WddmConEngine::InvalidateCursor(const til::rect* const /*psrRegion*/) noexcept
 {
     return S_OK;
 }
 
-[[nodiscard]] HRESULT WddmConEngine::InvalidateSystem(const RECT* const /*prcDirtyClient*/) noexcept
+[[nodiscard]] HRESULT WddmConEngine::InvalidateSystem(const til::rect* const /*prcDirtyClient*/) noexcept
 {
     return S_OK;
 }
 
-[[nodiscard]] HRESULT WddmConEngine::InvalidateSelection(const std::vector<SMALL_RECT>& /*rectangles*/) noexcept
+[[nodiscard]] HRESULT WddmConEngine::InvalidateSelection(const std::vector<til::rect>& /*rectangles*/) noexcept
 {
     return S_OK;
 }
 
-[[nodiscard]] HRESULT WddmConEngine::InvalidateScroll(const COORD* const /*pcoordDelta*/) noexcept
+[[nodiscard]] HRESULT WddmConEngine::InvalidateScroll(const til::point* const /*pcoordDelta*/) noexcept
 {
     return S_OK;
 }
@@ -253,7 +253,7 @@ bool WddmConEngine::IsInitialized()
 }
 
 [[nodiscard]] HRESULT WddmConEngine::PaintBufferLine(const gsl::span<const Cluster> clusters,
-                                                     const COORD coord,
+                                                     const til::point coord,
                                                      const bool /*trimLeft*/,
                                                      const bool /*lineWrapped*/) noexcept
 {
@@ -284,12 +284,12 @@ bool WddmConEngine::IsInitialized()
 [[nodiscard]] HRESULT WddmConEngine::PaintBufferGridLines(GridLineSet const /*lines*/,
                                                           COLORREF const /*color*/,
                                                           size_t const /*cchLine*/,
-                                                          const COORD /*coordTarget*/) noexcept
+                                                          const til::point /*coordTarget*/) noexcept
 {
     return S_OK;
 }
 
-[[nodiscard]] HRESULT WddmConEngine::PaintSelection(const SMALL_RECT /*rect*/) noexcept
+[[nodiscard]] HRESULT WddmConEngine::PaintSelection(const til::rect& /*rect*/) noexcept
 {
     return S_OK;
 }
@@ -327,7 +327,7 @@ bool WddmConEngine::IsInitialized()
 // - srNewViewport - The bounds of the new viewport.
 // Return Value:
 // - HRESULT S_OK
-[[nodiscard]] HRESULT WddmConEngine::UpdateViewport(const SMALL_RECT /*srNewViewport*/) noexcept
+[[nodiscard]] HRESULT WddmConEngine::UpdateViewport(const til::inclusive_rect& /*srNewViewport*/) noexcept
 {
     return S_OK;
 }
@@ -336,7 +336,7 @@ bool WddmConEngine::IsInitialized()
                                                      FontInfo& fiFontInfo,
                                                      const int /*iDpi*/) noexcept
 {
-    COORD coordSize = { 0 };
+    til::size coordSize;
     LOG_IF_FAILED(GetFontSize(&coordSize));
 
     fiFontInfo.SetFromEngine(fiFontInfo.GetFaceName(),
@@ -360,9 +360,9 @@ bool WddmConEngine::IsInitialized()
     return S_OK;
 }
 
-RECT WddmConEngine::GetDisplaySize()
+til::rect WddmConEngine::GetDisplaySize()
 {
-    RECT r;
+    til::rect r;
     r.top = 0;
     r.left = 0;
     r.bottom = _displayHeight;
@@ -371,7 +371,7 @@ RECT WddmConEngine::GetDisplaySize()
     return r;
 }
 
-[[nodiscard]] HRESULT WddmConEngine::GetFontSize(_Out_ COORD* const pFontSize) noexcept
+[[nodiscard]] HRESULT WddmConEngine::GetFontSize(_Out_ til::size* const pFontSize) noexcept
 {
     // In order to retrieve the font size being used by DirectX, it is necessary
     // to modify the API set that defines the contract for WddmCon. However, the
@@ -384,11 +384,7 @@ RECT WddmConEngine::GetDisplaySize()
     //
     // TODO: MSFT 11851921 - Subsume WddmCon into ConhostV2 and remove the API
     //       set extension.
-    COORD c;
-    c.X = DEFAULT_FONT_WIDTH;
-    c.Y = DEFAULT_FONT_HEIGHT;
-
-    *pFontSize = c;
+    *pFontSize = { DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT };
     return S_OK;
 }
 

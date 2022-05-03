@@ -36,7 +36,7 @@ class UtilsTests
 
 void UtilsTests::TestClampToShortMax()
 {
-    const short min = 1;
+    const til::CoordType min = 1;
 
     // Test outside the lower end of the range
     const auto minExpected = min;
@@ -49,12 +49,12 @@ void UtilsTests::TestClampToShortMax()
     VERIFY_ARE_EQUAL(negativeExpected, negativeActual);
 
     // Test outside the upper end of the range
-    const short maxExpected = SHRT_MAX;
+    const til::CoordType maxExpected = SHRT_MAX;
     auto maxActual = ClampToShortMax(50000, min);
     VERIFY_ARE_EQUAL(maxExpected, maxActual);
 
     // Test within the range
-    const short withinRangeExpected = 100;
+    const til::CoordType withinRangeExpected = 100;
     auto withinRangeActual = ClampToShortMax(withinRangeExpected, min);
     VERIFY_ARE_EQUAL(withinRangeExpected, withinRangeActual);
 }

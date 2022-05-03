@@ -29,31 +29,31 @@ BgfxEngine::BgfxEngine(PVOID SharedViewBase, LONG DisplayHeight, LONG DisplayWid
 {
     _runLength = sizeof(CD_IO_CHARACTER) * DisplayWidth;
 
-    _fontSize.X = FontWidth > SHORT_MAX ? SHORT_MAX : (SHORT)FontWidth;
-    _fontSize.Y = FontHeight > SHORT_MAX ? SHORT_MAX : (SHORT)FontHeight;
+    _fontSize.X = FontWidth > SHORT_MAX ? SHORT_MAX : (til::CoordType)FontWidth;
+    _fontSize.Y = FontHeight > SHORT_MAX ? SHORT_MAX : (til::CoordType)FontHeight;
 }
 
-[[nodiscard]] HRESULT BgfxEngine::Invalidate(const SMALL_RECT* const /*psrRegion*/) noexcept
+[[nodiscard]] HRESULT BgfxEngine::Invalidate(const til::rect* /*psrRegion*/) noexcept
 {
     return S_OK;
 }
 
-[[nodiscard]] HRESULT BgfxEngine::InvalidateCursor(const SMALL_RECT* const /*psrRegion*/) noexcept
+[[nodiscard]] HRESULT BgfxEngine::InvalidateCursor(const til::rect* /*psrRegion*/) noexcept
 {
     return S_OK;
 }
 
-[[nodiscard]] HRESULT BgfxEngine::InvalidateSystem(const RECT* const /*prcDirtyClient*/) noexcept
+[[nodiscard]] HRESULT BgfxEngine::InvalidateSystem(const til::rect* /*prcDirtyClient*/) noexcept
 {
     return S_OK;
 }
 
-[[nodiscard]] HRESULT BgfxEngine::InvalidateSelection(const std::vector<SMALL_RECT>& /*rectangles*/) noexcept
+[[nodiscard]] HRESULT BgfxEngine::InvalidateSelection(const std::vector<til::rect>& /*rectangles*/) noexcept
 {
     return S_OK;
 }
 
-[[nodiscard]] HRESULT BgfxEngine::InvalidateScroll(const COORD* const /*pcoordDelta*/) noexcept
+[[nodiscard]] HRESULT BgfxEngine::InvalidateScroll(const til::point* /*pcoordDelta*/) noexcept
 {
     return S_OK;
 }
@@ -85,7 +85,7 @@ BgfxEngine::BgfxEngine(PVOID SharedViewBase, LONG DisplayHeight, LONG DisplayWid
 
     if (NT_SUCCESS(Status))
     {
-        for (SHORT i = 0; i < _displayHeight; i++)
+        for (til::CoordType i = 0; i < _displayHeight; i++)
         {
             OldRunBase = (PVOID)(_sharedViewBase + (i * 2 * _runLength));
             NewRunBase = (PVOID)(_sharedViewBase + (i * 2 * _runLength) + _runLength);
@@ -121,7 +121,7 @@ BgfxEngine::BgfxEngine(PVOID SharedViewBase, LONG DisplayHeight, LONG DisplayWid
     PCD_IO_CHARACTER OldRun;
     PCD_IO_CHARACTER NewRun;
 
-    for (SHORT i = 0; i < _displayHeight; i++)
+    for (til::CoordType i = 0; i < _displayHeight; i++)
     {
         OldRunBase = (PVOID)(_sharedViewBase + (i * 2 * _runLength));
         NewRunBase = (PVOID)(_sharedViewBase + (i * 2 * _runLength) + _runLength);
@@ -129,7 +129,7 @@ BgfxEngine::BgfxEngine(PVOID SharedViewBase, LONG DisplayHeight, LONG DisplayWid
         OldRun = (PCD_IO_CHARACTER)OldRunBase;
         NewRun = (PCD_IO_CHARACTER)NewRunBase;
 
-        for (SHORT j = 0; j < _displayWidth; j++)
+        for (til::CoordType j = 0; j < _displayWidth; j++)
         {
             NewRun[j].Character = L' ';
             NewRun[j].Attribute = 0;
@@ -140,7 +140,7 @@ BgfxEngine::BgfxEngine(PVOID SharedViewBase, LONG DisplayHeight, LONG DisplayWid
 }
 
 [[nodiscard]] HRESULT BgfxEngine::PaintBufferLine(const gsl::span<const Cluster> clusters,
-                                                  const COORD coord,
+                                                  const til::point coord,
                                                   const bool /*trimLeft*/,
                                                   const bool /*lineWrapped*/) noexcept
 {
@@ -163,12 +163,12 @@ BgfxEngine::BgfxEngine(PVOID SharedViewBase, LONG DisplayHeight, LONG DisplayWid
 [[nodiscard]] HRESULT BgfxEngine::PaintBufferGridLines(GridLineSet const /*lines*/,
                                                        COLORREF const /*color*/,
                                                        size_t const /*cchLine*/,
-                                                       const COORD /*coordTarget*/) noexcept
+                                                       const til::point /*coordTarget*/) noexcept
 {
     return S_OK;
 }
 
-[[nodiscard]] HRESULT BgfxEngine::PaintSelection(const SMALL_RECT /*rect*/) noexcept
+[[nodiscard]] HRESULT BgfxEngine::PaintSelection(const til::rect& /*rect*/) noexcept
 {
     return S_OK;
 }
@@ -216,7 +216,7 @@ BgfxEngine::BgfxEngine(PVOID SharedViewBase, LONG DisplayHeight, LONG DisplayWid
 // - srNewViewport - The bounds of the new viewport.
 // Return Value:
 // - HRESULT S_OK
-[[nodiscard]] HRESULT BgfxEngine::UpdateViewport(const SMALL_RECT /*srNewViewport*/) noexcept
+[[nodiscard]] HRESULT BgfxEngine::UpdateViewport(const til::inclusive_rect& /*srNewViewport*/) noexcept
 {
     return S_OK;
 }
@@ -237,9 +237,9 @@ BgfxEngine::BgfxEngine(PVOID SharedViewBase, LONG DisplayHeight, LONG DisplayWid
     return S_OK;
 }
 
-[[nodiscard]] HRESULT BgfxEngine::GetFontSize(_Out_ COORD* const pFontSize) noexcept
+[[nodiscard]] HRESULT BgfxEngine::GetFontSize(_Out_ til::size* pFontSize) noexcept
 {
-    *pFontSize = _fontSize;
+    pFontSize = _fontSize;
     return S_OK;
 }
 

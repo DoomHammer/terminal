@@ -367,13 +367,13 @@ VOID ConIoSrvComm::HandleFocusEvent(PCIS_EVENT Event)
                 // Right after we initialize, synchronize the screen/viewport states with the WddmCon surface dimensions
                 if (SUCCEEDED(hr))
                 {
-                    const RECT rcOld = { 0 };
+                    const til::rect rcOld;
 
                     // WddmEngine reports display size in characters, adjust to pixels for resize window calc.
-                    RECT rcDisplay = pWddmConEngine->GetDisplaySize();
+                    auto rcDisplay = pWddmConEngine->GetDisplaySize();
 
                     // Get font to adjust char to pixels.
-                    COORD coordFont = { 0 };
+                    til::point coordFont;
                     LOG_IF_FAILED(pWddmConEngine->GetFontSize(&coordFont));
 
                     rcDisplay.right *= coordFont.X;
@@ -520,7 +520,7 @@ VOID ConIoSrvComm::CleanupForHeadless(const NTSTATUS status)
     return Status;
 }
 
-[[nodiscard]] NTSTATUS ConIoSrvComm::RequestUpdateDisplay(_In_ SHORT RowIndex) const
+[[nodiscard]] NTSTATUS ConIoSrvComm::RequestUpdateDisplay(_In_ til::CoordType RowIndex) const
 {
     NTSTATUS Status;
 
@@ -558,7 +558,7 @@ PVOID ConIoSrvComm::GetSharedViewBase() const
     IWindowMetrics* const Metrics = ServiceLocator::LocateWindowMetrics();
 
     // Fetch the display size from the console driver.
-    const RECT DisplaySize = Metrics->GetMaxClientRectInPixels();
+    const auto DisplaySize = Metrics->GetMaxClientRectInPixels();
     Status = GetLastError();
 
     if (NT_SUCCESS(Status))
