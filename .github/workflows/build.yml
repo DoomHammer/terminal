@@ -1,0 +1,30 @@
+name: Build
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: Init submodules
+      run: git submodule update --init --recursive
+    - name: Build
+      run: |
+        Import-Module .\tools\OpenConsole.psm1
+        Set-MsBuildDevEnvironment
+        Invoke-OpenConsoleBuild /property:Configuration=Release /p:WindowsTerminalOfficialBuild=false /p:WindowsTerminalReleaseBuild=true "/t:Conhost\Host_EXE;Conhost\winconpty_DLL"
+    - uses: actions/upload-artifact@v3
+      name: Upload artifact
+      with:
+        name: conpty
+        path: bin/x64/Release/conpty.dll
+    - uses: svenstaro/upload-release-action@v2
+      name: Upload attachment to release
+      if: startsWith(github.ref, 'refs/tags')
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: bin/x64/Release/conpty.dll
+        tag: ${{ github.ref }}
+        overwrite: true
